@@ -66,7 +66,9 @@ public:
    */
   void SetRemote (Address addr);
   
-  void SetInterval(Time interval);
+  void SetInterval (Time interval);
+  
+  void SetMaximumPacketSize (uint32_t maxPacketSize);
 
 protected:
   virtual void DoDispose (void);

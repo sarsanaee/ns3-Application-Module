@@ -67,7 +67,7 @@ TcpClient::GetTypeId (void)
                    MakeUintegerChecker<uint16_t> ())
     .AddAttribute ("PacketSize",
                    "Size of packets generated. The minimum packet size is 12 bytes which is the size of the header carrying the sequence number and the time stamp.",
-                   UintegerValue (1024),
+                   UintegerValue (400),
                    MakeUintegerAccessor (&TcpClient::m_size),
                    MakeUintegerChecker<uint32_t> (12,1500))
   ;
@@ -94,6 +94,12 @@ TcpClient::SetRemote (Address peerAddress, uint16_t port)
 
   m_peerAddress = peerAddress;
   m_peerPort = port;
+}
+
+void
+TcpClient::SetMaximumPacketSize(uint32_t maxPacketSize)
+{
+  m_size = maxPacketSize;
 }
 
 void
@@ -217,10 +223,10 @@ TcpClient::Send (void)
                                           << peerAddressStringStream.str ());
     }
 
-  if (m_sent < m_count)
-    {
+  //if (m_sent < m_count)
+  //  {
       m_sendEvent = Simulator::Schedule (m_interval, &TcpClient::Send, this);
-    }
+  //  }
   
 }
 

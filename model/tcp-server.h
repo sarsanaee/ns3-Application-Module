@@ -80,7 +80,8 @@ public:
    */
   void SetPacketWindowSize (uint16_t size);
   
-  void Setup (Ipv4Address address, uint16_t port);
+  void Setup (Ipv4Address address, uint16_t port, uint32_t packetSize, 
+              Time serviceTime);
   
   
 protected:
@@ -112,6 +113,9 @@ private:
   uint64_t m_received; //!< Number of received packets
   PacketLossCounter m_lossCounter; //!< Lost packet counter
   EventId m_sendEvent; //!< Event to send the next packet
+  uint32_t m_size;
+  uint32_t m_sent;
+  Time m_serviceTime;
 };
 
 } // namespace ns3

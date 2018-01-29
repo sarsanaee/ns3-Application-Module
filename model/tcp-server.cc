@@ -75,11 +75,15 @@ TcpServer::TcpServer ()
 }
 
 void
-TcpServer::Setup(Ipv4Address addr, uint16_t port)
+TcpServer::Setup(Ipv4Address addr, uint16_t port, uint32_t packetSize,
+                 Time serviceTime)
 {
   NS_LOG_FUNCTION (this << addr << port);
   m_port = port;
   m_local = addr;
+  m_size = packetSize;
+  m_sent = 0;
+  m_serviceTime = serviceTime; 
 }
 
 
@@ -213,7 +217,7 @@ TcpServer::HandleRead (Ptr<Socket> socket)
           m_received++;
       }
   }
-  m_sendEvent = Simulator::Schedule (Seconds(0.1), &TcpServer::Send, this);
+  m_sendEvent = Simulator::Schedule (m_serviceTime, &TcpServer::Send, this);
 }
 
 
@@ -224,11 +228,10 @@ TcpServer::Send(void)
   NS_LOG_FUNCTION (this);
   
   //NS_ASSERT (m_sendEvent.IsExpired ());
-  //SeqTsHeader seqTs;
-  //seqTs.SetSeq (m_sent);
-  //Ptr<Packet> p = Create<Packet> (m_size-(8+4)); // 8+4 : the size of the seqTs header
-  Ptr<Packet> p = Create<Packet> (100);
-  //p->AddHeader (seqTs);
+  SeqTsHeader seqTs;
+  seqTs.SetSeq (m_sent);
+  Ptr<Packet> p = Create<Packet> (m_size-(8+4)); // 8+4 : the size of the seqTs header
+  p->AddHeader (seqTs);
 
   //std::stringstream peerAddressStringStream;
   //peerAddressStringStream << Ipv4Address::ConvertFrom (m_peerAddress);
@@ -244,11 +247,16 @@ TcpServer::Send(void)
                                     << p->GetUid () << " Time: "
                                     << (Simulator::Now ()).GetSeconds ());
       */
-      NS_LOG_INFO("sent");
+      NS_LOG_INFO("TraceDelay TX " << m_size << " bytes to "
+                                   << "my friend " << " Uid: "
+                                   << p->GetUid () << " Time: "
+                                   << (Simulator::Now ()).GetSeconds ());
+                                   
+     m_sent++;
   }
   else
   {
-      NS_LOG_INFO ("Error while sending " << 100 << " bytes to " << "salam") ;//peerAddressStringStream.str ());
+      NS_LOG_INFO ("Error while sending " << 100 << " bytes to " << "my friend") ;//peerAddressStringStream.str ());
   }
   
 }
